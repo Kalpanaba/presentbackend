@@ -2,9 +2,14 @@ const Category = require('../models/category');
 
 const addCategory = async (req, res) => {
     try {
-        const category = new Category({ name: req.body.name });
-        const categoryData = await category.save();
-        res.status(200).json({ success: true, msg: 'Category added successfully', data: categoryData });
+        const categories = req.body;
+
+        if (!Array.isArray(categories) || categories.some(category => !category.name)) {
+            return res.status(400).json({ success: false, msg: 'Each category must have a name and request body must be an array of categories' });
+        }
+
+        const insertedCategories = await Category.insertMany(categories);
+        res.status(200).json({ success: true, msg: 'Categories added successfully', data: insertedCategories });
     } catch (error) {
         res.status(400).json({ success: false, msg: error.message });
     }
